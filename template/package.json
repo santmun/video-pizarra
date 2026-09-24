@@ -1,0 +1,9 @@
+{
+  "name": "video-pizarra-project",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "gsap": "^3.12.5",
+    "playwright": "^1.47.0"
+  }
+}
