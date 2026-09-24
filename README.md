@@ -44,3 +44,7 @@ Construir un video toma de 20 a 40 minutos de trabajo del agente, y el render fi
 - **Horizontal 16:9**: pídelo en la entrevista.
 
 Hecho con ❤️ por Horizontes IA.
+
+
+## Bonus: 3 estilos extra
+Además del pizarrón incluye `template-estilos/` con **acuarela**, **cuaderno** y **minimal** (mira `catalogo-estilos/`). Pídele a Claude: *"hazme un video en estilo acuarela sobre …"*.

@@ -1,6 +1,6 @@
 ---
 name: video-pizarra
-description: Crea videos animados estilo pizarrón / dibujo a mano (whiteboard) sobre CUALQUIER tema — con una mascota que actúa, texto escrito a plumón/gis/lápiz, fondos distintos por escena, transiciones creativas al ritmo de la música, efectos de sonido y un final tipo storyboard — todo generado con código (SVG + GSAP) y renderizado a MP4 vertical u horizontal. Antes de producir, entrevista al usuario (tema, fuentes, formato, personaje, imágenes de referencia, música, CTA) para asegurar un buen video. Úsalo cuando alguien pida "un video animado", "video tipo pizarrón", "whiteboard animation", "video explicativo animado", "video con dibujos", "video de noticia animado", "reel animado sobre X", "hazme un video de [tema] con una mascota", o quiera explicar un tema/noticia/lanzamiento/concepto en video corto sin grabarse, aunque no diga "pizarrón".
+description: Crea videos animados estilo pizarrón / dibujo a mano (whiteboard) sobre CUALQUIER tema — con una mascota que actúa, texto escrito a plumón/gis/lápiz, fondos distintos por escena, transiciones creativas al ritmo de la música, efectos de sonido y un final tipo storyboard — todo generado con código (SVG + GSAP) y renderizado a MP4 vertical u horizontal. Incluye además 3 estilos extra (acuarela, cuaderno/bullet journal y minimal blanco) con otro motor por código. Antes de producir, entrevista al usuario (tema, fuentes, formato, personaje, imágenes de referencia, música, CTA) para asegurar un buen video. Úsalo cuando alguien pida "un video animado", "video tipo pizarrón", "whiteboard animation", "video explicativo animado", "video con dibujos", "video de noticia animado", "reel animado sobre X", "hazme un video de [tema] con una mascota", o quiera explicar un tema/noticia/lanzamiento/concepto en video corto sin grabarse, aunque no diga "pizarrón".
 ---
 
 # video-pizarra
@@ -9,7 +9,16 @@ Convierte cualquier tema en un video animado de ~60–75 s que se siente dibujad
 
 Todo el motor ya está hecho en `template/`. Tu trabajo es **entender bien el video que la persona quiere**, escribir una historia clara y construir las escenas con el API del motor. No reescribas el motor.
 
-## Flujo
+## Modo estilos (acuarela · cuaderno · minimal)
+
+Además del pizarrón, el skill trae `template-estilos/`: otro motor por código (canvas) con 3 estilos listos — `acuarela` (papel de acuarela, tinta que hierve), `cuaderno` (bullet journal con marcatextos) y `minimal` (blanco premium). Úsalo cuando la persona pida uno de esos looks o un video más "limpio/editorial" que el pizarrón. Muéstrale `catalogo-estilos/` para elegir.
+
+- Se escribe como una lista de escenas (`hook, statement, chapter, list, stat, compare, quote, media, steps, cta`) en `video.js`; guía completa en `references/guion-estilos.md`.
+- Persona: su foto (`python3 cutout.py foto.jpg`) o un personaje dibujado con su look (piel, pelo, peinado, lentes, barba).
+- Se pueden mezclar los 3 estilos en un mismo video poniendo `style` en cada escena.
+- Pasos: `cp -r template-estilos ./proyecto && cd proyecto && npm install && npx playwright install chromium && python3 -m venv .venv && .venv/bin/pip install numpy` → `node render.mjs --scenes` (QA, mira las imágenes) → `python3 suno_music.py "<prompt>" "<título>" audio/music.mp3` (opcional) → `./build.sh <nombre>`.
+
+## Flujo (pizarrón)
 
 1. **Entrevista** (no te la saltes: es lo que separa un video bueno de uno genérico)
 2. **Investigar y verificar datos**
