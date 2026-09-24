@@ -11,11 +11,13 @@ Todo el motor ya está hecho en `template/`. Tu trabajo es **entender bien el vi
 
 ## Modo estilos (acuarela · cuaderno · minimal)
 
-Además del pizarrón, el skill trae `template-estilos/`: otro motor por código (canvas) con 3 estilos listos — `acuarela` (papel de acuarela, tinta que hierve), `cuaderno` (bullet journal con marcatextos) y `minimal` (blanco premium). Úsalo cuando la persona pida uno de esos looks o un video más "limpio/editorial" que el pizarrón. Muéstrale `catalogo-estilos/` para elegir.
+Además del pizarrón, el skill trae `template-estilos/`: otro motor por código (canvas) con 4 estilos listos — `acuarela` (papel de acuarela, tinta que hierve), `acuarela-viva` (acuarela con naranja/negro/blanco/rojo y mascota que resalta), `cuaderno` (bullet journal con marcatextos) y `minimal` (blanco premium). Úsalo cuando la persona pida uno de esos looks o un video más "limpio/editorial" que el pizarrón. Muéstrale `catalogo-estilos/` para elegir.
 
 - Se escribe como una lista de escenas (`hook, statement, chapter, list, stat, compare, quote, media, steps, cta`) en `video.js`; guía completa en `references/guion-estilos.md`.
 - Persona: su foto (`python3 cutout.py foto.jpg`) o un personaje dibujado con su look (piel, pelo, peinado, lentes, barba).
-- Se pueden mezclar los 3 estilos en un mismo video poniendo `style` en cada escena.
+- Se pueden mezclar estilos en un mismo video poniendo `style` en cada escena.
+- **Modo historia** (recomendado para intros e historias): mascota continua, cámara que la sigue, transiciones dentro de la historia y un lápiz que dibuja en vivo. Lee `references/historia.md` y parte de `template-estilos/historia.example.js`.
+- Antes de mostrar un borrador repasa `references/errores.md` (errores reales que ya cometimos: sensación de presentación, escenas saturadas, mismo layout, nombres de terceros, etc.).
 - Pasos: `cp -r template-estilos ./proyecto && cd proyecto && npm install && npx playwright install chromium && python3 -m venv .venv && .venv/bin/pip install numpy` → `node render.mjs --scenes` (QA, mira las imágenes) → `python3 suno_music.py "<prompt>" "<título>" audio/music.mp3` (opcional) → `./build.sh <nombre>`.
 
 ## Flujo (pizarrón)

@@ -2,6 +2,9 @@
 import * as L from '../engine/lib.js';
 import { BASE, title, para, drawFrame } from '../engine/base.js';
 
+// chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
+const CH = K => K.spec.chrome !== false;
+
 const BG = '#FAFAF7', INK = '#161616', ACC = '#FF4F00', MUTED = '#8C8C88', LINE = 'rgba(22,22,22,.10)';
 const SLOW = t => 1 - Math.pow(1 - t, 4); // precise, long-tail ease
 // soft-shadowed cutout, pre-rendered per height
@@ -24,10 +27,12 @@ export default {
   background(K, s) {
     const { ctx, W, H, u } = K; ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
     // one hairline + a quiet index — the only ornaments
-    const m = 80 * u, y = K.vertical ? 100 * u : 70 * u, lp = SLOW(L.clamp(s.t / 1.2));
+    if (CH(K)) {
+const m = 80 * u, y = K.vertical ? 100 * u : 70 * u, lp = SLOW(L.clamp(s.t / 1.2));
     ctx.fillStyle = LINE; ctx.fillRect(m, y, (W - 2 * m) * lp, 1);
     L.text(ctx, String(s.i + 1).padStart(2, '0'), m, y - 18 * u, { font: K.S.type.mono(16 * u), color: MUTED, alpha: lp });
     ctx.fillStyle = ACC; ctx.beginPath(); ctx.arc(W - m - 4 * u, y - 24 * u, 4 * u * lp, 0, 7); ctx.fill();
+    }
   },
   headline(K, str, box, p, s, o = {}) {
     const top = (K.vertical ? 130 : 100) * K.u; if (box.y < top) box = { ...box, y: top, h: box.h - (top - box.y) };

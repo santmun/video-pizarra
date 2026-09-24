@@ -339,20 +339,51 @@ export const MASCOTS = {
   },
 };
 // Draw mascot fitted to box (feet on the box bottom). Returns scale used.
+// Acting: set a pose before any style draws the mascot (all styles go through mascot()).
+// pose({ armL, armR (deg, + = raise), walk (phase rad), hop (px up), sx, sy (squash), rot (rad), look:[dx,dy], eyes:'happy'|'dot'|'closed'|'wide', color, flip })
+export let POSE = null;
+export function pose(p) { POSE = p || null; }
+// after each draw: canvas-space anchors to attach props / continue motion
+export const MLAST = { handL: [0, 0], handR: [0, 0], top: [0, 0], center: [0, 0], s: 1 };
+const PIV = { clawd: { L: [5, 79], R: [196, 71], hL: [-24, 79], hR: [224, 71], arms: [0, 1], legs: [2, 3, 4, 5] } };
 export function mascot(ctx, kind, box, { fill, stroke, color, ink = '#1d1a16', eye = null, eyeStyle = 'dot', outline = true, bob = 0 } = {}) {
   const M = typeof kind === 'object' ? kind : MASCOTS[kind]; if (!M) return 0;
+  const P = POSE || {}, pv = PIV[typeof kind === 'string' ? kind : ''] || null;
   const s = Math.min(box.w / M.box.w, box.h / M.box.h);
-  ctx.save(); ctx.translate(box.x + box.w / 2 - (M.box.x + M.box.w / 2) * s, box.y + box.h - (M.box.y + M.box.h) * s + bob); ctx.scale(s, s);
+  ctx.save(); ctx.translate(box.x + box.w / 2 - (M.box.x + M.box.w / 2) * s, box.y + box.h - (M.box.y + M.box.h) * s + bob - (P.hop || 0)); ctx.scale(s, s);
+  // squash / stretch / rotate / flip around the feet centre
+  const fx = M.box.x + M.box.w / 2, fy = M.box.y + M.box.h;
+  ctx.translate(fx, fy); ctx.rotate(P.rot || 0); ctx.scale((P.sx || 1) * (P.flip ? -1 : 1), P.sy || 1); ctx.translate(-fx, -fy);
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  const c = color || M.color;
+  const c = P.color || color || M.color;
   const F = fill || ((p, col) => { ctx.fillStyle = col; ctx.fill(p); });
   const K = stroke || ((p) => { ctx.strokeStyle = ink; ctx.lineWidth = 5 / s * Math.min(1, s * 1.4); ctx.stroke(p); });
-  for (const d of [...M.parts, M.body]) { const p = new Path2D(d); F(p, c, 'body'); if (outline) K(p); }
+  const toCanvas = (x, y) => { const m = ctx.getTransform(); return [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f]; };
+  const armIdx = pv ? pv.arms : [];
+  const drawPart = (d, i) => {
+    ctx.save();
+    if (pv && i === pv.arms[0] && P.armL) { ctx.translate(...pv.L); ctx.rotate(P.armL * Math.PI / 180); ctx.translate(-pv.L[0], -pv.L[1]); }
+    if (pv && i === pv.arms[1] && P.armR) { ctx.translate(...pv.R); ctx.rotate(-P.armR * Math.PI / 180); ctx.translate(-pv.R[0], -pv.R[1]); }
+    if (pv && pv.legs.includes(i) && P.walk !== undefined) { const k = pv.legs.indexOf(i); ctx.translate(0, -Math.max(0, Math.sin(P.walk + (k % 2) * Math.PI)) * 12); }
+    if (pv && i === pv.arms[0]) MLAST.handL = toCanvas(...pv.hL);
+    if (pv && i === pv.arms[1]) MLAST.handR = toCanvas(...pv.hR);
+    const p = new Path2D(d); F(p, c, 'body'); if (outline) K(p);
+    ctx.restore();
+  };
+  // legs/other parts behind the body, arms in front so raised arms stay visible
+  M.parts.forEach((d, i) => { if (!armIdx.includes(i)) drawPart(d, i); });
+  { const p = new Path2D(M.body); F(p, c, 'body'); if (outline) K(p); }
+  M.parts.forEach((d, i) => { if (armIdx.includes(i)) drawPart(d, i); });
+  MLAST.top = toCanvas(fx, M.box.y); MLAST.center = toCanvas(fx, M.box.y + M.box.h / 2); MLAST.s = s;
+  const es = P.eyes || eyeStyle, lk = P.look || [0, 0];
   ctx.fillStyle = eye || ink;
-  for (const [ex, ey] of M.eyes) {
+  for (const [ex0, ey0] of M.eyes) {
+    const ex = ex0 + lk[0] * 5, ey = ey0 + lk[1] * 5;
     ctx.beginPath();
-    if (eyeStyle === 'square') ctx.rect(ex - M.eyeR[0], ey - M.eyeR[0], M.eyeR[0] * 2, M.eyeR[0] * 2);
-    else if (eyeStyle === 'happy') { ctx.strokeStyle = eye || ink; ctx.lineWidth = 7; ctx.moveTo(ex - 10, ey + 3); ctx.quadraticCurveTo(ex, ey - 10, ex + 10, ey + 3); ctx.stroke(); continue; }
+    if (es === 'square') ctx.rect(ex - M.eyeR[0], ey - M.eyeR[0], M.eyeR[0] * 2, M.eyeR[0] * 2);
+    else if (es === 'happy') { ctx.strokeStyle = eye || ink; ctx.lineWidth = 7; ctx.moveTo(ex - 10, ey + 3); ctx.quadraticCurveTo(ex, ey - 10, ex + 10, ey + 3); ctx.stroke(); continue; }
+    else if (es === 'closed') { ctx.strokeStyle = eye || ink; ctx.lineWidth = 6; ctx.moveTo(ex - 10, ey); ctx.lineTo(ex + 10, ey); ctx.stroke(); continue; }
+    else if (es === 'wide') ctx.ellipse(ex, ey, M.eyeR[0] * 1.35, M.eyeR[1] * 1.35, 0, 0, 7);
     else ctx.ellipse(ex, ey, M.eyeR[0], M.eyeR[1], 0, 0, 7);
     ctx.fill();
   }
@@ -375,3 +406,42 @@ export function mapPixels(subj, fn) {
 }
 // memo helper for per-size treatments
 export function memo(fn) { const m = new Map(); return (...a) => { const k = a.join('|'); if (!m.has(k)) m.set(k, fn(...a)); return m.get(k); }; }
+
+// ---------- live drawing: a tool (pencil / marker / brush / pen) follows the edge of what is being drawn ----------
+// drawTool: the tip is at (x, y). kind: 'pencil' | 'marker' | 'brush' | 'pen'
+export function drawTool(ctx, kind, x, y, s = 1, { color = '#E0483E', ang = -0.75 } = {}) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.scale(s, s); ctx.lineJoin = 'round'; ctx.strokeStyle = '#1d1a16'; ctx.lineWidth = 3;
+  ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 12; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 8;
+  if (kind === 'marker') { ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(18, -10); ctx.lineTo(18, 10); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#2B2F3A'; ctx.fillRect(18, -16, 150, 32); ctx.shadowColor = 'transparent'; ctx.strokeRect(18, -16, 150, 32); ctx.fillStyle = color; ctx.fillRect(130, -16, 38, 32); }
+  else if (kind === 'brush') { ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(12, 0, 16, 7, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#C9A24A'; ctx.fillRect(26, -7, 24, 14); ctx.fillStyle = '#6B4B3A'; ctx.fillRect(50, -5, 150, 10); }
+  else if (kind === 'pen') { ctx.fillStyle = '#1C1B22'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(16, -6); ctx.lineTo(16, 6); ctx.closePath(); ctx.fill(); ctx.fillStyle = color; ctx.fillRect(16, -8, 140, 16); }
+  else { ctx.fillStyle = '#F3E3C3'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(26, -11); ctx.lineTo(26, 11); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#2B2B2B'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(8, -3.5); ctx.lineTo(8, 3.5); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#E9B44C'; ctx.fillRect(26, -11, 150, 22); ctx.shadowColor = 'transparent'; ctx.strokeRect(26, -11, 150, 22); ctx.fillStyle = '#E8A2A8'; ctx.fillRect(176, -11, 22, 22); ctx.strokeRect(176, -11, 22, 22); }
+  ctx.restore();
+}
+// writeOn: reveal draw(ctx) inside box left→right, line by line (lines = number of text lines), with the tool at the edge
+export function writeOn(ctx, draw, box, p, { tool = 'pencil', lines = 1, toolScale = 0.9, color, noTool = false } = {}) {
+  if (p <= 0) return; if (p >= 1) { draw(ctx); return; }
+  const n = lines, lh = box.h / n, f = p * n, cur = Math.min(n - 1, Math.floor(f)), fx = f - cur;
+  ctx.save(); ctx.beginPath();
+  if (cur > 0) ctx.rect(box.x - 60, box.y - 60, box.w + 120, cur * lh + 60);
+  ctx.rect(box.x - 60, box.y + cur * lh - (cur ? 0 : 60), (box.w + 60) * fx + 60, lh + (cur ? 0 : 60) + (cur === n - 1 ? 60 : 0));
+  ctx.clip(); draw(ctx); ctx.restore();
+  if (!noTool) drawTool(ctx, tool, box.x + box.w * fx, box.y + cur * lh + lh * (0.55 + 0.25 * Math.sin(p * 90)), toolScale, { color });
+}
+// highlightOn: marker swipe behind a box (draw it BEFORE the text)
+export function highlightOn(ctx, box, p, color = 'rgba(255,214,0,.55)', { tool = true, seed = 3 } = {}) {
+  if (p <= 0) return; const r = rng(seed), w = box.w * clamp(p);
+  ctx.save(); ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(box.x, box.y + r() * 6); ctx.lineTo(box.x + w, box.y + r() * 6 - 3); ctx.lineTo(box.x + w - 6, box.y + box.h - r() * 6); ctx.lineTo(box.x + 4, box.y + box.h + r() * 4); ctx.closePath(); ctx.fill(); ctx.restore();
+  if (tool && p < 1) drawTool(ctx, 'marker', box.x + w, box.y + box.h * 0.6, 0.8, { color: color.replace(/[\d.]+\)$/, '1)') });
+}
+// circleOn / underlineOn: hand-drawn ink that draws itself
+export function circleOn(ctx, cx, cy, rx, ry, p, color = '#E0483E', { w = 6, tool = 'pen', seed = 5 } = {}) {
+  if (p <= 0) return; const r = rng(seed), n = 60, pts = [];
+  for (let k = 0; k <= n * 1.12 * clamp(p); k++) { const a = -2.4 + k / n * Math.PI * 2, j = 1 + (r() - 0.5) * 0.04 + k / n * 0.06; pts.push([cx + Math.cos(a) * rx * j, cy + Math.sin(a) * ry * j]); }
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = ctx.lineJoin = 'round'; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); ctx.restore();
+  if (tool && p < 1 && pts.length) drawTool(ctx, tool, ...pts[pts.length - 1], 0.8, { color });
+}
+export function underlineOn(ctx, x, y, w, p, color = '#E0483E', { lw = 7, tool = 'pen' } = {}) {
+  if (p <= 0) return; const q = clamp(p); ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x + w * q / 2, y + 8, x + w * q, y - 4); ctx.stroke(); ctx.restore();
+  if (tool && p < 1) drawTool(ctx, tool, x + w * q, y - 4, 0.8, { color });
+}
