@@ -30,3 +30,10 @@ Salen de producir videos reales con este skill y del feedback del creador. Reví
 - Muestra el guion/storyboard antes de renderizar algo grande.
 - Revisa cuadros de **cada** escena y de **cada** transición (`node render.mjs --stills …` + `contact.py`) antes de mandar un borrador.
 - Manda borradores al celular en versión `-movil` (< 30 MB) y ábrelos en la compu si lo pide.
+
+## Voz y cortes
+19. **Transcribir con Whisper para decidir cortes.** Whisper se come el habla baja y mueve los tiempos: salieron cortes que partían palabras. → Usa AssemblyAI (`vo_words.py` ya lo hace si hay `ASSEMBLYAI_API_KEY`), `disfluencies: true`.
+20. **Cortar tomas "a ojo".** → Elige la mejor toma aislada de cada frase (primera y última palabra), detecta silencios reales con `ffmpeg silencedetect`, corta solo en silencio, verifica que ningún corte caiga dentro de una palabra y **re-transcribe el resultado** para confirmar que no se perdió ni repitió nada.
+21. **Cuando la persona graba su propio guion**, la animación se reorganiza alrededor de lo que dijo de verdad (no del guion planeado), y se sincroniza a sus palabras exactas.
+22. **Animaciones encima de la cara en el brief inicial**: si la persona abre hablando a cámara, las animaciones entran cuando empieza a hablar de ellas, no antes.
+23. **SFX que no pidió / fondos con manchas**: si dice que sobran, quítalos (voz sola) y usa fondos planos detrás del personaje.

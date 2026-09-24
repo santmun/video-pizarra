@@ -31,7 +31,7 @@ export default {
     // bleed mask for the transition: a deformed blob, unit radius
     const r = L.rng(4); blob = L.circlePoly(0, 0, 1, 1, 24).map(([x, y]) => { const k = 0.85 + r() * 0.3; return [x * k, y * k]; });
   },
-  background(K, s) { K.ctx.drawImage(washes[s.i % 3], 0, 0); },
+  background(K, s) { K.ctx.fillStyle = '#FBF1E6'; K.ctx.fillRect(0, 0, K.W, K.H); }, // flat: no washes behind
   headline(K, str, box, p, s, o = {}) { title(K, str, box, p, { align: o.align, size: o.size, color: INK, emColor: '#D83A34', reveal: 'wipe', emStyle: 'highlight', emBg: 'rgba(217,119,87,.35)', valign: 'middle' }); },
   text(K, str, box, p, role, s, o = {}) {
     if (role === 'kicker' || role === 'label') return para(K, str, box, p, { font: sz => K.S.type.hand(sz), color: '#9A4127', max: 46, align: o.align || 'left' });
@@ -93,5 +93,5 @@ export default {
     ctx.save(); ctx.beginPath(); blob.forEach(([x, y], i) => { const px = W * 0.5 + x * R, py = H * 0.5 + y * R; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }); ctx.closePath(); ctx.clip(); ctx.drawImage(B, 0, 0); ctx.restore();
     ctx.save(); ctx.strokeStyle = 'rgba(160,90,60,.25)'; ctx.lineWidth = 14; ctx.beginPath(); blob.forEach(([x, y], i) => { const px = W * 0.5 + x * R, py = H * 0.5 + y * R; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }); ctx.closePath(); ctx.stroke(); ctx.restore();
   },
-  overlay(K) { const ctx = K.ctx; ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = 0.35; ctx.drawImage(paperC, 0, 0); ctx.restore(); },
+  overlay() {},
 };
