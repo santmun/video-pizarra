@@ -4,6 +4,7 @@ import { BASE, title, para, fitCharacter, drawFrame } from '../engine/base.js';
 
 const INK = '#241D18', TERRA = '#C4663F', SAGE = '#8FA7A1', SKY = '#9CC3D5', SAND = '#E7B98A', PAPER = '#F1E8D6';
 let paperC, washes = {}, blob;
+const brand = K => (K.spec.palette || {}).accent; // color de marca del usuario (spec.palette.accent) manda sobre el del estilo
 const boil = K => Math.floor(K.t * 8); // line boil: 8 redraws per second
 const WASH = L.memo((w, h, color, seed) => { const c = L.canvas(Math.ceil(w + 80), Math.ceil(h + 80)), x = c.getContext('2d'); L.watercolor(x, L.rectPoly(40, 40, w, h), color, { seed: +seed, layers: 22, alpha: 0.06, amp: 0.12 }); return c; });
 
@@ -32,7 +33,7 @@ export default {
     const r = L.rng(4); blob = L.circlePoly(0, 0, 1, 1, 24).map(([x, y]) => { const k = 0.85 + r() * 0.3; return [x * k, y * k]; });
   },
   background(K, s) { K.ctx.drawImage(washes[s.i % 3], 0, 0); },
-  headline(K, str, box, p, s, o = {}) { title(K, str, box, p, { align: o.align, size: o.size, color: INK, emColor: '#9A4127', reveal: 'wipe', emStyle: 'highlight', emBg: 'rgba(196,102,63,.28)', valign: 'middle' }); },
+  headline(K, str, box, p, s, o = {}) { title(K, str, box, p, { align: o.align, size: o.size, color: INK, emColor: brand(K) || '#9A4127', reveal: 'wipe', emStyle: 'highlight', emBg: brand(K) ? brand(K) + '47' : 'rgba(196,102,63,.28)', valign: 'middle' }); },
   text(K, str, box, p, role, s, o = {}) {
     if (role === 'kicker' || role === 'label') return para(K, str, box, p, { font: sz => K.S.type.hand(sz), color: '#9A4127', max: 46, align: o.align || 'left' });
     if (role === 'headBad' || role === 'headGood') return title(K, str, box, p, { color: role === 'headGood' ? '#4E7D5B' : '#A4553A', max: 72, reveal: 'wipe' });

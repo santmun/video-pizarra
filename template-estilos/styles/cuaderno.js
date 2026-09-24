@@ -6,6 +6,7 @@ const PAPER = '#FBF8F1', PEN = '#1F2A44', RED = '#D64545';
 const HL = { yel: '#FFE66D', pink: '#FFB3C7', green: '#B8F2C4', blue: '#A8D8FF', orange: '#FFC98B' };
 const HLS = [HL.yel, HL.pink, HL.green, HL.blue, HL.orange];
 let pages = [], grain;
+const brand = K => (K.spec.palette || {}).accent; // color de marca del usuario (spec.palette.accent) manda sobre el del estilo
 const boil = K => Math.floor(K.t * 5);
 const pen = (K, seed) => L.wobbleStroke(K.ctx, PEN, 3.2 * K.u, 1, seed);
 function marker(ctx, x, y, w, h, col, p, seed, u) { // highlighter swipe: slanted, soft ends, a bit outside the lines
@@ -55,7 +56,7 @@ export default {
   headline(K, str, box, p, s, o = {}) {
     const ctx = K.ctx, u = K.u, R = layoutRich(ctx, K.rich(str), box, { font: sz => K.S.type.display(sz), emFont: sz => K.S.type.em(sz), max: (o.size === 'm' ? 120 : 180) * u, min: 18 * u, lh: 1.02, ls: -0.01 });
     const n = R.lines.length, y0 = box.y + (box.h - n * R.lh) / 2; let wi = 0;
-    R.lines.forEach((line, i) => { const x0 = o.align === 'center' ? box.x + (box.w - R.widths[i]) / 2 : o.align === 'right' ? box.x + box.w - R.widths[i] : box.x; line.forEach(t => { if (t.em) marker(ctx, x0 + t.x - R.size * 0.06, y0 + i * R.lh + R.size * 0.3, t.width + R.size * 0.12, R.size * 0.62, HLS[(s.i + wi) % HLS.length], L.clamp(p * 1.6 - 0.5), wi + i, u); wi++; }); });
+    R.lines.forEach((line, i) => { const x0 = o.align === 'center' ? box.x + (box.w - R.widths[i]) / 2 : o.align === 'right' ? box.x + box.w - R.widths[i] : box.x; line.forEach(t => { if (t.em) marker(ctx, x0 + t.x - R.size * 0.06, y0 + i * R.lh + R.size * 0.3, t.width + R.size * 0.12, R.size * 0.62, (brand(K) ? brand(K) + '8C' : HLS[(s.i + wi) % HLS.length]), L.clamp(p * 1.6 - 0.5), wi + i, u); wi++; }); });
     drawRich(K, R, box, p, { align: o.align, color: PEN, emColor: PEN, reveal: 'wipe' });
   },
   text(K, str, box, p, role, s, o = {}) {

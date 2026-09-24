@@ -346,7 +346,15 @@ export function pose(p) { POSE = p || null; }
 // after each draw: canvas-space anchors to attach props / continue motion
 export const MLAST = { handL: [0, 0], handR: [0, 0], top: [0, 0], center: [0, 0], s: 1 };
 const PIV = { clawd: { L: [5, 79], R: [196, 71], hL: [-24, 79], hR: [224, 71], arms: [0, 1], legs: [2, 3, 4, 5] } };
+// overrides globales del video (spec.mascotColor, spec.mascot = { image }) — los pone core.js
+export const MOPTS = { color: null, image: null };
+function imageMascot(ctx, img, box, bob) { // la mascota es una imagen (logo, personaje propio): respeta hop/rot/sx/sy/flip
+  const P = POSE || {}, s = Math.min(box.w / img.width, box.h / img.height), w = img.width * s, h = img.height * s, fx = box.x + box.w / 2, fy = box.y + box.h + bob - (P.hop || 0);
+  ctx.save(); ctx.translate(fx, fy); ctx.rotate(P.rot || 0); ctx.scale((P.sx || 1) * (P.flip ? -1 : 1), P.sy || 1); ctx.drawImage(img, -w / 2, -h, w, h); ctx.restore();
+  MLAST.handL = [fx - w * 0.55, fy - h * 0.45]; MLAST.handR = [fx + w * 0.55, fy - h * 0.45]; MLAST.top = [fx, fy - h]; MLAST.center = [fx, fy - h / 2]; MLAST.s = s; return s;
+}
 export function mascot(ctx, kind, box, { fill, stroke, color, ink = '#1d1a16', eye = null, eyeStyle = 'dot', outline = true, bob = 0 } = {}) {
+  if (MOPTS.image) return imageMascot(ctx, MOPTS.image, box, bob);
   const M = typeof kind === 'object' ? kind : MASCOTS[kind]; if (!M) return 0;
   const P = POSE || {}, pv = PIV[typeof kind === 'string' ? kind : ''] || null;
   const s = Math.min(box.w / M.box.w, box.h / M.box.h);
@@ -355,7 +363,7 @@ export function mascot(ctx, kind, box, { fill, stroke, color, ink = '#1d1a16', e
   const fx = M.box.x + M.box.w / 2, fy = M.box.y + M.box.h;
   ctx.translate(fx, fy); ctx.rotate(P.rot || 0); ctx.scale((P.sx || 1) * (P.flip ? -1 : 1), P.sy || 1); ctx.translate(-fx, -fy);
   ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-  const c = P.color || color || M.color;
+  const c = P.color || MOPTS.color || color || M.color;
   const F = fill || ((p, col) => { ctx.fillStyle = col; ctx.fill(p); });
   const K = stroke || ((p) => { ctx.strokeStyle = ink; ctx.lineWidth = 5 / s * Math.min(1, s * 1.4); ctx.stroke(p); });
   const toCanvas = (x, y) => { const m = ctx.getTransform(); return [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f]; };

@@ -1,6 +1,6 @@
 ---
 name: video-pizarra
-description: Crea videos animados estilo pizarrón / dibujo a mano (whiteboard) sobre CUALQUIER tema — con una mascota que actúa, texto escrito a plumón/gis/lápiz, fondos distintos por escena, transiciones creativas al ritmo de la música, efectos de sonido y un final tipo storyboard — todo generado con código (SVG + GSAP) y renderizado a MP4 vertical u horizontal. Incluye además 4 estilos extra (acuarela, acuarela viva, cuaderno/bullet journal y minimal blanco) con otro motor por código. Antes de producir, entrevista al usuario (tema, fuentes, formato, personaje, imágenes de referencia, música, CTA) para asegurar un buen video. Úsalo cuando alguien pida "un video animado", "video tipo pizarrón", "whiteboard animation", "video explicativo animado", "video con dibujos", "video de noticia animado", "reel animado sobre X", "hazme un video de [tema] con una mascota", o quiera explicar un tema/noticia/lanzamiento/concepto en video corto sin grabarse, aunque no diga "pizarrón".
+description: Crea videos animados estilo pizarrón / dibujo a mano (whiteboard) sobre CUALQUIER tema — con una mascota que actúa, texto escrito a plumón/gis/lápiz, fondos distintos por escena, transiciones creativas al ritmo de la música, efectos de sonido y un final tipo storyboard — todo generado con código (SVG + GSAP) y renderizado a MP4 vertical u horizontal. Incluye además 4 estilos extra (acuarela, acuarela viva, cuaderno/bullet journal y minimal blanco) con otro motor por código. Todo es personalizable: colores y tipografía de marca, su logo o personaje como mascota, su foto, sus capturas, su voz, formato e idioma. Si el pedido ya trae lo necesario arranca directo; si no, entrevista solo lo que falte (tema, fuentes, formato, personaje, música, CTA). Úsalo cuando alguien pida "un video animado", "video tipo pizarrón", "whiteboard animation", "video explicativo animado", "video con dibujos", "video de noticia animado", "reel animado sobre X", "hazme un video de [tema] con una mascota", o quiera explicar un tema/noticia/lanzamiento/concepto en video corto sin grabarse, aunque no diga "pizarrón".
 ---
 
 # video-pizarra
@@ -8,6 +8,23 @@ description: Crea videos animados estilo pizarrón / dibujo a mano (whiteboard) 
 Convierte cualquier tema en un video animado de ~60–75 s que se siente dibujado a mano: una mascota que actúa, frases escritas en vivo, cada escena con su propio fondo y herramienta, transiciones que conectan una escena con la siguiente y caen en el beat de la música.
 
 Todo el motor ya está hecho en `template/`. Tu trabajo es **entender bien el video que la persona quiere**, escribir una historia clara y construir las escenas con el API del motor. No reescribas el motor.
+
+## Todo se puede personalizar (no le digas "no se puede")
+
+El skill es un punto de partida, no un molde. Si la persona pide algo que no viene de fábrica, adáptalo: cambia la configuración, edita el estilo o escribe una escena nueva con el API del motor. Lo único que no negocias es la calidad (texto legible, datos reales, QA antes de entregar).
+
+| Quiere… | Pizarrón (`template/`) | Estilos (`template-estilos/`) |
+|---|---|---|
+| Colores de su marca | `palette` y `hatches` en la config | `palette: { accent: '#hex', bg: '#hex' }` |
+| Su tipografía | fuentes en `engine-api.md` | `font: { display: 'Bebas Neue', body: 'Poppins' }` (cualquier fuente de Google Fonts) |
+| Su mascota o personaje | `mascotShape` (silueta propia) o `image()` con su PNG | `mascot: 'clawd' \| 'bot' \| 'blob'`, `mascotColor: '#hex'`, o su logo/personaje: `mascot: { image: 'assets/logo.png' }` |
+| Salir él/ella | — | `person: { photo }` (`cutout.py foto.jpg`) o personaje dibujado con su `look` |
+| Sus imágenes, logos, capturas | `image()` | escenas `media`, `sticker`, `shotCard` (ver `references/historia.md`) |
+| Formato / duración | 9:16 o 16:9, cualquier duración | igual |
+| Su voz, su música o nada | `audio/vo.wav`, `audio/music.mp3`, Suno o sin música | igual; si se grabó a cámara, `componer.sh` |
+| Otro idioma | textos y `say` en su idioma | igual |
+| Un look que no está | ajusta el estilo más cercano (fondo, trazos, colores, tipografía) | copia el estilo más cercano en `styles/` y modifícalo |
+| Mezclar | — | `style` por escena; pizarrón y estilos se pueden unir con ffmpeg |
 
 ## Modo estilos (acuarela · cuaderno · minimal)
 
@@ -34,6 +51,8 @@ Además del pizarrón, el skill trae `template-estilos/`: otro motor por código
 ---
 
 ## 1 · Entrevista
+
+**Adapta la entrevista a lo que ya te dieron.** Si el pedido trae tema, formato y tono (por ejemplo, un prompt copiado de un tutorial), no hagas la entrevista completa: decide lo que falte con defaults sensatos, muestra un resumen de 5 líneas y arranca. Pregunta solo lo que de verdad cambie el video (datos que no puedes verificar, su marca, su CTA). Si dice "hazlo directo", no preguntes nada.
 
 Usa la herramienta de preguntas (máx. 4 por tanda, cada una con opción recomendada primero). Si la persona ya respondió algo en su mensaje, no lo vuelvas a preguntar. Pregunta en el idioma del usuario.
 
@@ -64,7 +83,7 @@ Cierra con un **resumen**: lo que respondió vs. lo que tú decidiste por defect
 
 ## 3 · Storyboard → aprobación
 
-Lee `references/storytelling.md` y escribe `STORYBOARD.md` en la carpeta del proyecto: una tabla con, por escena, **fondo · herramienta · texto en pantalla · qué hace el personaje · transición de salida**. Muéstrale a la persona un resumen corto (una línea por escena) y **espera su aprobación** antes de animar. Cambiar un storyboard cuesta minutos; cambiar un video, horas.
+Lee `references/storytelling.md` y escribe `STORYBOARD.md` en la carpeta del proyecto: una tabla con, por escena, **fondo · herramienta · texto en pantalla · qué hace el personaje · transición de salida**. Muéstrale a la persona un resumen corto (una línea por escena) y **espera su aprobación** antes de animar — salvo que haya pedido hacerlo directo: entonces muéstralo y sigue. Cambiar un storyboard cuesta minutos; cambiar un video, horas.
 
 Reglas que vienen de lo que ya funcionó (y de lo que no):
 - **Hook en el primer segundo.** La primera frase aparece en ~0.2 s. Nada de intros lentas ni escenas de "contexto" antes del hook.

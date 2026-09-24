@@ -14,6 +14,15 @@ export async function boot(spec, mods) {
     st.type = Object.assign({}, BASE.type, mod.type || {});
     SS[id] = st;
   }
+  // tipografía de marca: spec.font = { display: 'Bebas Neue', body: 'Inter' } (cualquier fuente de Google Fonts)
+  if (spec.font) { const F = spec.font, q = f => f.trim().replace(/ /g, '+');
+    await Promise.all([F.display, F.body].filter(Boolean).flatMap(f => [q(f), q(f) + ':wght@700'].map(fam => new Promise(res => { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = `https://fonts.googleapis.com/css2?family=${fam}&display=block`; l.onload = l.onerror = res; setTimeout(res, 4000); document.head.appendChild(l); }))));
+    const D = F.display ? `"${F.display}"` : null, B = F.body ? `"${F.body}"` : null;
+    for (const st of Object.values(SS)) st.type = Object.assign({}, st.type, D ? { display: s => `700 ${s}px ${D}`, em: s => `700 ${s}px ${D}` } : {}, B ? { body: s => `400 ${s}px ${B}`, bodyEm: s => `700 ${s}px ${B}`, label: s => `700 ${s}px ${B}`, mono: s => `400 ${s}px ${B}` } : {});
+    await Promise.all([D, B].filter(Boolean).flatMap(f => [`400 40px ${f}`, `700 40px ${f}`].map(x => document.fonts.load(x).catch(() => {})))); }
+  // mascota: color propio (spec.mascotColor) o una imagen propia (spec.mascot = { image: 'assets/logo.png' })
+  if (spec.mascotColor) L.MOPTS.color = spec.mascotColor;
+  if (spec.mascot && spec.mascot.image) L.MOPTS.image = await L.loadImg(spec.mascot.image).catch(() => null);
   const mainId = spec.style in SS ? spec.style : Object.keys(SS)[0];
   let S = SS[mainId];
   const use = id => { S = SS[id] || SS[mainId]; K.S = S; K.P = S.palette; };

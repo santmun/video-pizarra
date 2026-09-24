@@ -5,7 +5,8 @@ import { BASE, title, para, drawFrame } from '../engine/base.js';
 // chrome: header/footer labels (scene numbers, rules, HUDs). Off with `chrome: false` in the video spec.
 const CH = K => K.spec.chrome !== false;
 
-const BG = '#FAFAF7', INK = '#161616', ACC = '#FF4F00', MUTED = '#8C8C88', LINE = 'rgba(22,22,22,.10)';
+const BG = '#FAFAF7', INK = '#161616', MUTED = '#8C8C88', LINE = 'rgba(22,22,22,.10)';
+let ACC = '#FF4F00'; // background() lo cambia por el color de marca si el video trae palette.accent
 const SLOW = t => 1 - Math.pow(1 - t, 4); // precise, long-tail ease
 // soft-shadowed cutout, pre-rendered per height
 const SHADOWED = L.memo(h => {
@@ -25,7 +26,8 @@ export default {
   sfx: 'soft', transDur: 0.7, push: 0.015,
   music: 'minimal modern piano and soft electronic textures, sparse, elegant, calm confidence, gentle pulse, 92 BPM, instrumental, luxury brand film',
   background(K, s) {
-    const { ctx, W, H, u } = K; ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    ACC = K.P.accent;
+    const { ctx, W, H, u } = K; ctx.fillStyle = (K.spec.palette || {}).bg || BG; ctx.fillRect(0, 0, W, H);
     // one hairline + a quiet index — the only ornaments
     if (CH(K)) {
 const m = 80 * u, y = K.vertical ? 100 * u : 70 * u, lp = SLOW(L.clamp(s.t / 1.2));

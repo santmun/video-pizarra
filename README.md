@@ -21,6 +21,9 @@ música, llamado a la acción) y te enseña el storyboard para que lo apruebes.
 
 La primera vez el skill instalará el navegador que usa para renderizar (`npx playwright install chromium`).
 
+## Hazlo tuyo
+Pídelo con tus palabras: tus colores, tu tipografía (cualquier fuente de Google Fonts), tu logo o personaje como mascota, tu foto, tus capturas, tu voz, 16:9 o 9:16, cualquier idioma. Si algo no viene de fábrica, Claude lo adapta.
+
 ## Música (opcional)
 
 - **Con Suno**: consigue una API key en https://sunoapi.org y guárdala así:

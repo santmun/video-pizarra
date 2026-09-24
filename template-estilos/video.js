@@ -13,6 +13,9 @@ export default {
   // words: 'audio/words.json',   // subtítulos exactos desde tu voz en off (python3 vo_words.py audio/vo.wav)
   // beats: 'audio/beats.json',   // cortes en el beat de la música (python3 beats.py audio/music.mp3)
   // palette: { accent: '#00A6A6' },  // color de tu marca
+  // font: { display: 'Bebas Neue', body: 'Poppins' },  // tu tipografía (cualquier fuente de Google Fonts)
+  // mascotColor: '#2F6BFF',                           // color de la mascota
+  // mascot: { image: 'assets/logo.png' },             // o tu logo/personaje como mascota (PNG con fondo transparente)
   scenes: [
     { type: 'hook', dur: 4.5, title: 'Trabaja *4 horas* menos a la semana', kicker: 'productividad real', prompt: '¿En qué se me va el tiempo?', say: 'Vas a recuperar cuatro horas a la semana con tres cambios simples.' },
     { type: 'statement', dur: 3.5, kicker: 'el problema', title: 'No te falta tiempo. Te sobran *interrupciones.*', sub: 'Cada notificación te cuesta 20 minutos de enfoque.', say: 'No te falta tiempo: te sobran interrupciones.' },
