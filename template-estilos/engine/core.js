@@ -29,7 +29,7 @@ export async function boot(spec, mods) {
 
   // images used by scenes
   const images = {};
-  for (const sc of spec.scenes) for (const src of [sc.src, sc.image].filter(Boolean)) if (!images[src]) images[src] = await L.loadImg(src).catch(() => null);
+  for (const sc of spec.scenes) for (const src of [sc.src, sc.image, ...(sc.images || [])].filter(Boolean)) if (!images[src]) images[src] = await L.loadImg(src).catch(() => null);
   const person = spec.person === false ? null : Object.assign({ look: {} }, spec.person || {});
   const photo = person?.photo ? await L.loadImg(person.photo).catch(() => null) : null;
 

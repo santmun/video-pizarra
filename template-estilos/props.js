@@ -95,3 +95,45 @@ export function flag(K, x, y, h, wave, sk = skin(K)) { const pole = new Path2D()
 export function magnifier(K, x, y, r, ang, sk = skin(K)) { const c = K.ctx; c.save(); c.translate(x, y); c.rotate(ang); const h = new Path2D(); h.rect(-6, 0, 12, r * 1.6); sk.fill(h, '#6B4B3A'); sk.stroke(h); const g = new Path2D(); g.arc(0, -r, r, 0, 7); c.save(); c.globalAlpha = 0.25; c.fillStyle = '#BFE3F2'; c.fill(g); c.restore(); sk.stroke(g, 1.4); c.restore(); }
 export function confetti(K, t, t0, colors, { n = 60, seed = 3, strips = false } = {}) { if (t < t0) return; const c = K.ctx, r = L.rng(seed), dt = t - t0; for (let k = 0; k < n; k++) { const x = r() * K.W, v = 180 + r() * 260, y = -40 + (dt * v) + r() * -300, a = dt * (2 + r() * 5) + r() * 6; if (y > K.H + 40) continue; c.save(); c.translate(x + Math.sin(dt * 2 + k) * 30, y); c.rotate(a); c.fillStyle = colors[k % colors.length]; if (strips) c.fillRect(-26, -6, 52, 12); else { c.beginPath(); c.arc(0, 0, 6 + (k % 3) * 3, 0, 7); c.fill(); } c.restore(); } }
 export function panelBorder(K, x, y, w, h, sk = skin(K)) { const p = new Path2D(); p.rect(x, y, w, h); sk.stroke(p, 1.3); }
+
+// ---- material real y "tachar" (aprendido en la intro Opus 5.5) ----
+// X de plumón en dos trazos sobre (x,y), semitamaño a; q = progreso 0→1. Dibuja la herramienta en la punta mientras traza.
+export function redX(K, x, y, a, q, { w = 16, color = '#D83A34', tool = 'marker' } = {}) { if (q <= 0) return; const c = K.ctx, q1 = L.clamp(q * 2), q2 = L.clamp(q * 2 - 1);
+  c.save(); c.strokeStyle = color; c.lineWidth = w * K.u; c.lineCap = 'round'; c.beginPath(); c.moveTo(x - a, y - a); c.lineTo(x - a + 2 * a * q1, y - a + 2 * a * q1);
+  if (q2 > 0) { c.moveTo(x + a, y - a); c.lineTo(x + a - 2 * a * q2, y - a + 2 * a * q2); } c.stroke(); c.restore();
+  if (tool && q < 1) L.drawTool(c, tool, q < 0.5 ? x - a + 2 * a * q1 : x + a - 2 * a * q2, q < 0.5 ? y - a + 2 * a * q1 : y - a + 2 * a * q2, 1, { color }); }
+// logo/ícono real (imagen) como sticker: borde blanco redondeado + sombra, entra con rebote. p = progreso de entrada.
+export function sticker(K, img, x, y, size, p, { rot = 0, radius = 0.22 } = {}) { const e = L.E.back(L.clamp(p)); if (e <= 0) return; const c = K.ctx, S = size;
+  c.save(); c.translate(x, y); c.rotate(rot); c.scale(e, e); c.shadowColor = 'rgba(0,0,0,.22)'; c.shadowBlur = 30; c.shadowOffsetY = 12;
+  c.fillStyle = '#FFFFFF'; c.beginPath(); c.roundRect(-S / 2 - 10, -S / 2 - 10, S + 20, S + 20, S * (radius + 0.04)); c.fill(); c.shadowColor = 'transparent';
+  c.beginPath(); c.roundRect(-S / 2, -S / 2, S, S, S * radius); c.clip(); if (img) c.drawImage(img, -S / 2, -S / 2, S, S); c.restore(); }
+// captura real (post, dashboard, tweet) en tarjeta con sombra que entra deslizándose desde la derecha. Devuelve el rect final (para highlights).
+export function shotCard(K, img, box, p, { from = 900, radius = 20 } = {}) { const q = L.E.out(L.clamp(p)), X = box.x + (1 - q) * from, c = K.ctx; if (q <= 0) return box;
+  c.save(); c.globalAlpha = L.clamp(q * 1.5); c.shadowColor = 'rgba(0,0,0,.28)'; c.shadowBlur = 40; c.shadowOffsetY = 16; c.fillStyle = '#FFFFFF'; c.beginPath(); c.roundRect(X - 10, box.y - 10, box.w + 20, box.h + 20, radius + 8); c.fill(); c.shadowColor = 'transparent';
+  c.beginPath(); c.roundRect(X, box.y, box.w, box.h, radius); c.clip(); if (img) c.drawImage(img, X, box.y, box.w, box.h); c.restore(); return { ...box, x: X }; }
+// logos de redes dibujados en código (marcas planas): 'ig' | 'yt' | 'tt' | 'in'. s = tamaño en px, p = escala de entrada.
+export function social(K, kind, x, y, s, p) { if (p <= 0) return; const c = K.ctx; c.save(); c.translate(x, y); c.scale(p * s / 100, p * s / 100); c.shadowColor = 'rgba(0,0,0,.25)'; c.shadowBlur = 20; c.shadowOffsetY = 8;
+  const sq = () => { c.beginPath(); c.roundRect(-50, -50, 100, 100, 24); };
+  if (kind === 'ig') { const g = c.createLinearGradient(-50, 50, 50, -50); [['0', '#FEDA75'], ['.3', '#FA7E1E'], ['.55', '#D62976'], ['.8', '#962FBF'], ['1', '#4F5BD5']].forEach(([o, col]) => g.addColorStop(+o, col)); c.fillStyle = g; sq(); c.fill(); c.shadowColor = 'transparent';
+    c.strokeStyle = '#fff'; c.lineWidth = 7; c.beginPath(); c.roundRect(-30, -30, 60, 60, 17); c.stroke(); c.beginPath(); c.arc(0, 0, 14, 0, 7); c.stroke(); c.fillStyle = '#fff'; c.beginPath(); c.arc(19, -19, 4.5, 0, 7); c.fill(); }
+  if (kind === 'yt') { c.fillStyle = '#FF0000'; c.beginPath(); c.roundRect(-62, -44, 124, 88, 26); c.fill(); c.shadowColor = 'transparent'; c.fillStyle = '#fff'; c.beginPath(); c.moveTo(-14, -22); c.lineTo(-14, 22); c.lineTo(24, 0); c.closePath(); c.fill(); }
+  if (kind === 'tt') { c.fillStyle = '#111'; sq(); c.fill(); c.shadowColor = 'transparent'; const note = (dx, dy, col) => { c.strokeStyle = col; c.lineWidth = 11; c.lineCap = 'round'; c.beginPath(); c.moveTo(4 + dx, -30 + dy); c.lineTo(4 + dx, 14 + dy); c.stroke(); c.beginPath(); c.arc(-10 + dx, 14 + dy, 14, 0, 7); c.stroke(); c.beginPath(); c.moveTo(4 + dx, -30 + dy); c.quadraticCurveTo(10 + dx, -14 + dy, 26 + dx, -12 + dy); c.stroke(); };
+    note(-3, -3, '#25F4EE'); note(3, 3, '#FE2C55'); note(0, 0, '#fff'); }
+  if (kind === 'in') { c.fillStyle = '#0A66C2'; sq(); c.fill(); c.shadowColor = 'transparent'; L.text(c, 'in', 0, 22, { font: '700 64px Inter, sans-serif', color: '#fff', align: 'center' }); }
+  c.restore(); }
+// moneda/ficha vista de lado (para pilas: tokens, dinero, puntos); (x,y) = centro de la cara superior
+export function coin(K, x, y, r = 80, { face = '#D97757', side = '#B8573A', mark = 'T' } = {}, sk = skin(K)) { const c = new Path2D(); c.ellipse(x, y + 22, r, r * 0.3, 0, 0, Math.PI); c.lineTo(x - r, y); c.ellipse(x, y, r, r * 0.3, 0, Math.PI, 0, true); c.closePath(); sk.fill(c, side); sk.stroke(c, 0.9);
+  const t = new Path2D(); t.ellipse(x, y, r, r * 0.3, 0, 0, 7); sk.fill(t, face); sk.stroke(t, 0.9); if (mark) L.text(K.ctx, mark, x, y + r * 0.12, { font: `700 ${r * 0.36}px Fraunces, serif`, color: '#141414', align: 'center' }); }
+// engrane (configurar / ajustes); ang = giro
+export function gear(K, x, y, r, ang = 0, { color = '#141414', hole = '#FBF1E6' } = {}, sk = skin(K)) { const g = new Path2D(), n = 9; for (let i = 0; i < n * 2; i++) { const a0 = ang + i * Math.PI / n, rr = i % 2 ? r * 0.78 : r; g.lineTo(x + Math.cos(a0 - 0.14) * rr, y + Math.sin(a0 - 0.14) * rr); g.lineTo(x + Math.cos(a0 + 0.14) * rr, y + Math.sin(a0 + 0.14) * rr); } g.closePath(); sk.fill(g, color); sk.stroke(g); const h = new Path2D(); h.arc(x, y, r * 0.3, 0, 7); sk.fill(h, hole); sk.stroke(h); }
+// íconos animados de oficios/acciones para listas habladas; t = segundos desde que apareció. kind: 'code' | 'edit' | 'anim'
+export function oficio(K, kind, x, y, t, sk = skin(K)) { const c = K.ctx;
+  if (kind === 'code') { const m = new Path2D(); m.roundRect(x - 130, y - 90, 260, 170, 12); sk.fill(m, '#1F2A44'); sk.stroke(m); const st = new Path2D(); st.moveTo(x - 30, y + 80); st.lineTo(x - 45, y + 110); st.lineTo(x + 45, y + 110); st.lineTo(x + 30, y + 80); sk.stroke(st);
+    L.text(c, '</>', x - 100, y - 40, { font: '700 34px "IBM Plex Mono", monospace', color: '#FFD84D' }); [[150, '#7FD1FF'], [110, '#FF8A7A'], [170, '#9BE39B']].forEach(([w, col], i) => { c.fillStyle = col; c.fillRect(x - 100 + (i === 1 ? 24 : 0), y - 10 + i * 26, w * L.clamp(t * 3 - i * 0.6), 10); }); }
+  if (kind === 'edit') { const tr = new Path2D(); tr.roundRect(x - 140, y - 60, 280, 120, 10); sk.fill(tr, '#F3E6D8'); sk.stroke(tr);
+    [[-128, 80, '#6FA8DC'], [-44, 60, '#F6B26B'], [20, 100, '#93C47D']].forEach(([dx, w, col], i) => { const cl = new Path2D(); cl.roundRect(x + dx, y - 40 + (i % 2) * 44, w, 36, 6); sk.fill(cl, col); sk.stroke(cl, 0.7); });
+    const ph = x - 130 + 260 * ((t * 0.9) % 1); c.fillStyle = '#E0483E'; c.fillRect(ph - 2, y - 72, 4, 144); c.beginPath(); c.moveTo(ph - 10, y - 78); c.lineTo(ph + 10, y - 78); c.lineTo(ph, y - 64); c.fill();
+    L.text(c, '✂', x + 110, y - 78, { font: '48px sans-serif', color: '#1F2A44', align: 'center' }); }
+  if (kind === 'anim') { c.save(); c.setLineDash([6, 10]); c.strokeStyle = '#1F2A44'; c.lineWidth = 3; c.beginPath(); for (let k = 0; k <= 40; k++) { const u = k / 40, bx = x - 140 + 280 * u, by = y + 60 - Math.abs(Math.sin(u * Math.PI * 2)) * 130; k ? c.lineTo(bx, by) : c.moveTo(bx, by); } c.stroke(); c.restore();
+    const u = (t * 0.8) % 1, bx = x - 140 + 280 * u, by = y + 60 - Math.abs(Math.sin(u * Math.PI * 2)) * 130, sq = by > y + 45 ? 0.75 : 1; const b = new Path2D(); b.ellipse(bx, by - 22 * sq, 24 / sq, 24 * sq, 0, 0, 7); sk.fill(b, '#D97757'); sk.stroke(b);
+    [0, 0.25, 0.5, 0.75, 1].forEach(k => { const d = new Path2D(), kx = x - 140 + 280 * k, ky = y + 105; d.moveTo(kx, ky - 11); d.lineTo(kx + 11, ky); d.lineTo(kx, ky + 11); d.lineTo(kx - 11, ky); d.closePath(); sk.fill(d, u >= k - 0.02 ? '#FFD84D' : '#FFFFFF'); sk.stroke(d, 0.7); }); } }

@@ -15,7 +15,7 @@ Salen de producir videos reales con este skill y del feedback del creador. Reví
 
 ## Datos, privacidad y honestidad
 10. **Nombres de terceros.** Usar el nombre de un miembro, cliente o alumno en pantalla. → Pon "un miembro de la comunidad" / "un cliente" salvo permiso explícito.
-11. **Prometer lo que no se regala.** Mostrar estilos premium y decir "te regalo el skill" cuando el regalo es otro. → Que lo que se ve coincida con lo que se entrega, o dilo claro.
+11. **Prometer lo que no se regala.** Mostrar estilos que el regalo no incluye y decir "te regalo el skill". → Que lo que se ve coincida con lo que se entrega, o dilo claro.
 12. **"100% código" con IA generativa.** Nunca uses imágenes o video generados por IA como base si el video dice que es 100% código. (La música de Suno sí es IA de audio: no digas que la música es código.)
 13. **Cifras inventadas.** Si falta una captura o cifra real, usa un marcador que diga "MOCKUP" y avísale al usuario.
 
@@ -37,3 +37,6 @@ Salen de producir videos reales con este skill y del feedback del creador. Reví
 21. **Cuando la persona graba su propio guion**, la animación se reorganiza alrededor de lo que dijo de verdad (no del guion planeado), y se sincroniza a sus palabras exactas.
 22. **Animaciones encima de la cara en el brief inicial**: si la persona abre hablando a cámara, las animaciones entran cuando empieza a hablar de ellas, no antes.
 23. **SFX que no pidió / fondos con manchas**: si dice que sobran, quítalos (voz sola) y usa fondos planos detrás del personaje.
+24. **Metáforas abstractas que no se entienden** (un medidor/perilla para "no gasta muchos tokens"). → Muestra una comparación concreta: antes contra después (dos pilas de monedas, una que se desborda y otra chiquita) con etiquetas, y que el personaje haga la acción que cambia el resultado (gira el engrane de "configurar").
+25. **Listas habladas como texto tachado.** Cuando la persona enumera ("programador, editor, animador"), cada cosa necesita su propio símbolo animado (monitor con código, línea de tiempo con playhead, pelota rebotando con keyframes) que aparece justo cuando lo dice.
+26. **Mencionar herramientas o marcas sin mostrarlas.** Si dice "Higgsfield", "Instagram", "YouTube", muestra los logos reales (íconos de la app, o dibujados en código si son marcas planas simples). Si el video dice "no uso IA de video", no generes esa escena con IA de video.

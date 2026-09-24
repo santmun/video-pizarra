@@ -1,0 +1,7 @@
+node_modules/
+.venv/
+stills/
+qa/
+_*.mp4
+audio/_*
+sfx.json

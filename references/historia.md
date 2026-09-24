@@ -43,6 +43,29 @@ Usa el dibujo en vivo en 2–4 momentos clave, no en todo: cuando el texto "se e
 ## Props (`props.js`)
 Todos toman el material del estilo activo con `skin(K)` (acuarela = acuarela, patente = achurado, manga = tinta gruesa, minimal = sombras suaves…): `room, desk, laptop, mug, drafting, key, pencil, giftBox, doodle, flag, magnifier, confetti, strike, panelBorder, bubble, check`. Crea los tuyos en el mismo patrón: un `Path2D` + `sk.fill(path, color)` + `sk.stroke(path)`.
 
+Material real y comparaciones:
+- `sticker(K, img, x, y, size, p, { rot })` — logo/ícono real (PNG de la app) con borde blanco y rebote de entrada.
+- `shotCard(K, img, box, p)` — captura real (post, dashboard, tweet) que entra deslizándose; devuelve el rect para poner `highlightOn`/`circleOn` encima de la línea que importa.
+- `redX(K, x, y, a, q, { w, color })` — tacha con plumón en dos trazos, con la herramienta en la punta.
+- `social(K, 'ig'|'yt'|'tt'|'in', x, y, s, p)` — logos de redes dibujados en código.
+- `coin(K, x, y, r)` (pilas de tokens/dinero/puntos), `gear(K, x, y, r, ang)` (configurar), `oficio(K, 'code'|'edit'|'anim', x, y, t)` (monitor escribiendo, línea de tiempo con playhead, pelota con keyframes).
+
+Las imágenes de una escena se declaran en `src`, `image` o `images: [...]` y quedan en `K.images[ruta]`.
+
+## Patrones que funcionan (probados con el creador)
+- **"No uso X" / "sin X"** → los logos reales de X aparecen como stickers uno por uno y el personaje los tacha con `redX`; el que nombra en voz entra al final, más grande.
+- **"Ya están ganando / resultados"** → la captura real con `shotCard` + marcatextos o círculo sobre la cifra, en el momento en que la dice. Difumina nombres y fotos de terceros antes (Pillow `GaussianBlur` sobre esa caja).
+- **Una idea abstracta** ("no gasta muchos tokens") → comparación concreta antes/después con etiquetas (pila que se desborda vs pila chiquita) y el personaje haciendo la acción que cambia el resultado (gira el engrane). Nada de medidores sin contexto.
+- **Una lista hablada** ("programador, editor, animador") → una tarjeta con un ícono animado por cosa, que entra justo cuando la dice; se tacha medio segundo después.
+- **"Para tu marca / marca personal"** → alguien grabándose (aro de luz, celular en tripié con REC) y los logos de redes saliendo del celular.
+- **Arranque** en un solo estilo y fondo plano; los estilos cambian solo cuando la voz habla de estilos.
+
+## Si la persona se grabó a cámara (A-roll)
+1. Corta su grabación con AssemblyAI (mejores tomas, sin partir palabras) → `aroll.mov` + `audio/words.json` con los tiempos del corte.
+2. `anclas.json` con la frase que abre cada escena y los tramos animados → `python3 anclas.py audio/words.json anclas.json > timing.js`. En `video.js`, `dur: TM.b - TM.a` y escenas negras (`hide: true`) donde se ve su cara.
+3. `./componer.sh aroll.mov nombre` → la animación va encima solo en los `RANGES`; fuera se ve su cara. Voz a −14 LUFS.
+4. Si abre hablando a cámara (brief), la animación empieza cuando habla de lo animado, no antes.
+
 ## Receta para una escena
 1. **Escenario** (fondo del estilo + 1–3 objetos del mundo).
 2. **Una acción** del personaje con un objeto, que tenga sentido con la escena anterior (de dónde viene) y la siguiente (a dónde va).
