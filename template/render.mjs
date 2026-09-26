@@ -16,7 +16,7 @@ const fps = Number(opt('--fps', 30)), mode = opt('--mode', 'A');
 const root = process.cwd();
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg' };
 const server = createServer(async (req, res) => {
-  try { const p = join(root, decodeURIComponent(req.url.split('?')[0])); res.writeHead(200, { 'content-type': types[extname(p)] || 'application/octet-stream' }); res.end(await readFile(p)); }
+  try { const p = join(root, decodeURIComponent(req.url.split('?')[0])); const data = await readFile(p); res.writeHead(200, { 'content-type': types[extname(p)] || 'application/octet-stream' }); res.end(data); }
   catch { res.writeHead(404); res.end(); }
 }).listen(0);
 const launch = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {};
